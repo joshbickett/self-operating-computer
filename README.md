@@ -30,7 +30,7 @@
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
 
 ## Agent-1-Vision Model API Access
-We will soon be offering API access to our Agent-1-Vision model.
+We will be offering API access to our Agent-1-Vision model soon.
 
 If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
 
