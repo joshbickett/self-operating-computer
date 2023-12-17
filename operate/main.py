@@ -14,6 +14,7 @@ import platform
 import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
+import requests
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
@@ -357,9 +358,65 @@ def get_next_action(model, messages, objective, accurate_mode):
         content = get_next_action_from_openai(messages, objective, accurate_mode)
         return content
     elif model == "agent-1":
-        return "coming soon"
+        content = get_next_action_from_agent_1(messages, objective)
+        return content
 
     raise ModelNotRecognizedException(model)
+
+def get_next_action_from_agent_1(messages, objective):
+    """
+    Get the next action for Self-Operating Computer
+    """
+    # sleep for a second
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        new_screenshot_filename = os.path.join(
+            "screenshots", "screenshot_with_grid.png"
+        )
+
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        # sleep for a second
+        time.sleep(1)
+
+        with open(new_screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+
+        vision_message = {
+            "role": "user",
+            "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+        }
+
+        # create a copy of messages and save to pseudo_messages
+        pseudo_messages = messages.copy()
+        pseudo_messages.append(vision_message)
+
+        url = 'http://localhost:5000/agent/v1/chat/completion'
+
+        # now make api call
+        response = requests.post(url, messages=pseudo_messages)
+
+        messages.append(
+            {
+                "role": "user",
+                "content": "`screenshot.png`",
+            }
+        )
+
+        response = requests.post(url, messages=messages)
+
+        content = response.choices[0].message.content
+
+        return content
+
 
 
 def get_last_assistant_message(messages):
