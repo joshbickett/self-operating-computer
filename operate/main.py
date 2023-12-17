@@ -358,10 +358,12 @@ def get_next_action(model, messages, objective, accurate_mode):
         content = get_next_action_from_openai(messages, objective, accurate_mode)
         return content
     elif model == "agent-1":
+        print("Using agent-1")
         content = get_next_action_from_agent_1(messages, objective)
         return content
 
     raise ModelNotRecognizedException(model)
+
 
 def get_next_action_from_agent_1(messages, objective):
     """
@@ -378,17 +380,13 @@ def get_next_action_from_agent_1(messages, objective):
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
-        new_screenshot_filename = os.path.join(
-            "screenshots", "screenshot_with_grid.png"
-        )
+        new_screenshot_filename = os.path.join("screenshots", "screenshot.png")
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
         # sleep for a second
         time.sleep(1)
 
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
 
         vision_message = {
             "role": "user",
@@ -399,10 +397,10 @@ def get_next_action_from_agent_1(messages, objective):
         pseudo_messages = messages.copy()
         pseudo_messages.append(vision_message)
 
-        url = 'http://localhost:5000/agent/v1/chat/completion'
+        url = "http://localhost:5000/agent/v1/chat/completion"
 
         # now make api call
-        response = requests.post(url, messages=pseudo_messages)
+        response = requests.post(url, json={"messages": pseudo_messages})
 
         messages.append(
             {
@@ -416,7 +414,9 @@ def get_next_action_from_agent_1(messages, objective):
         content = response.choices[0].message.content
 
         return content
-
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
 
 
 def get_last_assistant_message(messages):
