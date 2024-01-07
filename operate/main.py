@@ -354,14 +354,14 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
 
 
 def get_next_action(model, messages, objective, accurate_mode):
-    print("Using model:", model)
+    # print("Using model:", model)
     if model == "gpt-4-vision-preview":
         content = get_next_action_from_openai(messages, objective, accurate_mode)
         return content
     elif model == "agent-1":
-        print("[get_next_action][agent-1]")
+        # print("[get_next_action][agent-1]")
         content = get_next_action_from_agent_1(messages, objective)
-        print("[get_next_action][agent-1] content", content)
+        # print("[get_next_action][agent-1] content", content)
         return content
 
     raise ModelNotRecognizedException(model)
@@ -372,7 +372,7 @@ def get_next_action_from_agent_1(messages, objective):
     Get the next action for Self-Operating Computer
     """
     # sleep for a second
-    time.sleep(1)
+    time.sleep(2)
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -403,17 +403,9 @@ def get_next_action_from_agent_1(messages, objective):
 
         # now make api call
         response = requests.post(url, json={"messages": pseudo_messages})
-        print("[get_next_action][agent-1] response", response)
 
-        messages.append(
-            {
-                "role": "user",
-                "content": "`screenshot.png`",
-            }
-        )
         # load response as json
         response_json = response.json()
-        print("[get_next_action][agent-1] response", response_json)
 
         # Directly access 'content' key if it exists
         if "message" in response_json:
